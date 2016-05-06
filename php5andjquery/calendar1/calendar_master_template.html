@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        
+      <div class="container-fluid">
+        
+      </div>
+    
+
+    <div class="container-fluid">
+        <h1 class="page-header">Calendar Application</h1>
+      <div class="row">
+        <div class="col-sm-4 col-md-2 sidebar">
+            <?php
+            include "tmpl" . DIRECTORY_SEPARATOR . ""
+            ?>
+            
+            <h2>Search</h2>
+            <!-- day to show -->
+            <h3>Päivä</h3>
+            <div>[&lt;vuosi][vuosi &gt;]</div>
+            <div>[&lt; kk][kk  &gt;]</div>
+            
+            
+            <table>
+                <tr><th>ma</th><th>ti</th><th>ke</th><th>to</th><th>pe</th><th>la</th><th>su</th></tr>
+                <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td></tr>
+                <tr><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr>
+                <tr><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td></tr>
+                <tr><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td><td>28</td></tr>
+                <tr><td>29</td><td>31</td><td>31</td><td> </td><td> </td><td> </td><td> </td></tr>
+            </table>
+            <!-- calendar to show -->
+            <h3>Kalenterit</h3>
+            <ul>
+                <li>Tampere</li>
+                <li>Nokia</li>
+                <li>Ylöjärvi</li>
+                <li>Pirkkala</li>
+            </ul>
+            
+            
+            <!-- types of events to show -->
+            <h3>Kategoriat</h3>
+            <ul>
+                <li>Elokuvat</li>
+                <li>Näyttelyt</li>
+                <li>Konsertit</li>
+                <li>Muu taide</li>
+            </ul>
+            
+            
+        </div>
+        <div class="col-sm-8 col-md-10 main">
+          
+          <!--  calendar -->
+          <h2 class="sub-header">Calendar </h2>
+          <h3>Edellinen kuukausi [NOW] Seuraava kuukausi</h3>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Ma</th>
+                  <th>Ti</th>
+                  <th>Ke</th>
+                  <th>To</th>
+                  <th>Pe</th>
+                  <th>La</th>
+                  <th>Su</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td>5</td>
+                  <td>6</td>
+                  <td>7</td>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td>5</td>
+                  <td>6</td>
+                  <td>7</td>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td>5</td>
+                  <td>6</td>
+                  <td>7</td>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td>5</td>
+                  <td>6</td>
+                  <td>7</td>
+                </tr>
+                
+                <tr>
+                  <td>1</td>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>4</td>
+                  <td>5</td>
+                  <td>6</td>
+                  <td>7</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    </body>
+</html>
