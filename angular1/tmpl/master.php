@@ -49,84 +49,19 @@ and open the template in the editor.
 
         <script type="text/javascript">
             
-                jQuery(document).ready(function() {
-                    myApp.init("calendar.php");
-                                      
-                    jQuery("#datepicker").datepicker({
-                        dateFormat: myApp.getDateFormat(),
-                        onSelect: function(dateText, picker) {
-                            console.log(picker);
-                            var myMoment = new moment(dateText, myApp.getFormatToMoment());
-                            console.log(myMoment.format("YYYY-MM-DD"));
-                            myApp.changeDate(myMoment.format("YYYY-MM-DD"), true);
-                        },
-                        onChangeMonthYear: function(y,m) {
-                            myApp.changeMonthYear(y,m);
-                        }
-                    });
-                    jQuery("#fullcalendar").fullCalendar({
-			header: {
-				left: 'prev,next today',
-				center: 'title',
-				right: 'month,agendaWeek,agendaDay'
-			},
-			defaultDate: moment(),
-			editable: false,
-			eventLimit: false, // allow "more" link when too many events
-			events: myApp.getEvents,
-                        eventAfterAllRender: function(view) {
-                            console.log("eventAfterAllRender");
-                        },
-                        viewRender: function(view, element) {
-                            console.log("viewRender");
-                            
-                             console.log(view);
-                            if (view.type === "agendaWeek") {
-                                myApp.changeView("week", view.start);
-                            } else if (view.type === "agendaDay") {
-                                myApp.changeView("day", view.start);
-                            } else if (view.type === "month") {
-                                myApp.changeView("month", view.start);
-                            } else {
-                             // miss-configureation    
-                            }
-                        },
-                        eventClick: function( event, jsEvent, view ) {
-                            console.log(event,jsEvent, view);
-                            myApp.showEvent(event);
-                        }
-                        
-                    });
-                    
-                    jQuery("#showCalendar").click(function() {
-                        myApp.showCalendar();
-                    });
-                    
-                    myApp.setFullCalendar(jQuery("#fullcalendar"));            
                 
-                });
         </script>
 
-        <style type="text/css">
-            .app-visible {
-                visibility: visible;
-                display: block;
-            }
-            .app-hidden {
-                visibility: hidden;
-                display: none;
-            }
-        </style>
 
     </head>
-    <body>
+    <body ng-app="calendarApp">
 
         <div class="container-fluid">
-
+            NAVI
         </div>
 
 
-        <div id="calendar_container"  class="container-fluid app-visible">
+        <div id="calendar_container"  ng-controller="CalendarCtrl" class="container-fluid app-visible">
             <h1 class="page-header">Calendar Application</h1>
             <div class="row">
                 <div class="col-sm-4 col-md-4 sidebar">

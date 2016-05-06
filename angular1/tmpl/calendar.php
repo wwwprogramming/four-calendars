@@ -1,9 +1,4 @@
 <h2 class="sub-header">Calendar </h2>
          
-          <?php
-/* @var $dateHelper DateHelper */
-echo (new Calendar())->renderLarge($dateHelper->getMonth(), $dateHelper->getYear());
-
-
-          
+ <div class="calendar" ng-model="eventSources" calendar="myCalendar1" ui-calendar="uiConfig.calendar"></div>
           
