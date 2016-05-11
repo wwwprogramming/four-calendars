@@ -3,18 +3,17 @@ session_start();
 
 define("DS", DIRECTORY_SEPARATOR);
 define("ROOT_PATH", dirname(__FILE__));
-define("LIB_PATH",  realpath( dirname(__FILE__) . DS . ".." . DS . "lib") );
+define("LIB_PATH",  ROOT_PATH . DS . "lib" );
 
-define("LIB_PATH_LOCAL" , ROOT_PATH . DS . "lib");
 define("CACHE_PATH", dirname(__FILE__). DS . "cache". DS);
 
 
-require LIB_PATH_LOCAL . DS . "Request.php";
-require LIB_PATH_LOCAL . DS . "Calendar.php";
+require LIB_PATH . DS . "Request.php";
+require LIB_PATH . DS . "Calendar.php";
 
 require LIB_PATH . DS . "DateHelper.php";
 
-require LIB_PATH_LOCAL . DS . "SearchHelper.php";
+require LIB_PATH . DS . "SearchHelper.php";
 require LIB_PATH . DS . "Events.php";
 require LIB_PATH . DS . "EventsHelper.php";
 

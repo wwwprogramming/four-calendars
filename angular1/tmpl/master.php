@@ -4,7 +4,7 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 -->
-<html>
+<html  ng-app="calendarApp">
     <head>
         <title>Calendar Example Static</title>
         <meta charset="UTF-8">
@@ -39,75 +39,93 @@ and open the template in the editor.
 
        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
        
+       <script src="//angular-ui.github.io/ui-router/release/angular-ui-router.js"></script>
+       
        <script src="media/js/ng-ui-bootstrap/ui-bootstrap-tpls-1.3.2.js"></script>
 
               <script src="media/js/ui-calendar-master/src/calendar.js"></script>
 
         <script src="application.js"></script>
-        
-        
-
         <script type="text/javascript">
             
-                
+            calendarApp.constant('appConfiguration',{
+                "a": "b",
+                "initPoint": "http://angular1.my/calendar.php?action=init",
+                "eventsPoint": "http://angular1.my/calendar.php?action=getevents",
+                "eventPoint": "http://angular1.my/calendar.php?action=getevent",
+            });
+                            
         </script>
 
 
     </head>
-    <body ng-app="calendarApp">
+    <body ng-controller="ApplicationController">
 
         <div class="container-fluid">
             NAVI
         </div>
 
+        <div ui-view='index'>
+            <pre>Master view</pre>
+            <a ui-sref='index({id: 1, color: 123})'>Route 1</a>
+            <a ui-sref='event({id: 1, color: 123})'>Route 1</a>
+            <a ui-sref="calendar({id: 1, color: 123})">Route 1</a>
+            <div ui-view="calendar">
 
-        <div id="calendar_container"  ng-controller="CalendarCtrl" class="container-fluid app-visible">
+            </div>
+        
+            <div ui-view="event">
+
+            </div>
+        </div><!-- viewMaster -->
+        
+        <script type="text/ng-template" id="/calendar.html">
+            <div id="calendar_container" ng-controller="CalendarViewController"  class="container-fluid">
+            
             <h1 class="page-header">Calendar Application</h1>
             <div class="row">
-                <div class="col-sm-4 col-md-4 sidebar">
+                <div ng-controller="CalendarSearchController" class="col-sm-4 col-md-4 sidebar">
                     <?php
                     include dirname(__FILE__) . DIRECTORY_SEPARATOR . "search.php";
                     ?>
 
                 </div>
-                <div class="col-sm-8 col-md-8 main">
+                <div class="col-sm-8 col-md-8 main" ng-controller="CalendarCtrl" >
                     <!--  calendar -->
-                    <?php include dirname(__FILE__) . DIRECTORY_SEPARATOR . "calendar.php"; ?>
+                    <?php 
+                    include dirname(__FILE__) . DIRECTORY_SEPARATOR . "calendar.php"; 
+                    ?>
 
 
                 </div>
             </div>
-        </div>
-        
-        <div id="event_container" class="container-fluid app-hidden">
-            <h1 class="page-header">Calendar Application Event</h1>
-            <div class="row">
-                <div class="col-sm-4 col-md-2 sidebar">
-                    <button id="showCalendar">&lt;&lt; Calendar</button>       
-                </div>
-
-                <div class="col-sm-8 col-md-10 main">
-                    <table id="event_table" style="background-color: white; color: black">
-                        <tr><th>Id</th><td id="event_ph_id">&nbsp;</td></tr>
-                        <tr><th>Title</th><td id="event_ph_title">&nbsp;</td></tr>
-                        <tr><th>Category</th><td id="event_ph_category">&nbsp;</td></tr>
-                        <tr><th>Calendar</th><td id="event_ph_calendar">&nbsp;</td></tr>
-                        <tr><th>Start</th><td  id="event_ph_start">&nbsp;</td></tr>
-                        <tr><th>End</th><td id="event_ph_end">&nbsp;</td></tr>
-                        
-                    </table>
-                    
-                </div>
-
             </div>
-        </div>
-        <!--
-        <pre>
-        <?php
-        var_dump($eventsHelper);
-        ?>            
+            </script>
+            
+            <script type="text/ng-template" id="/event.html">
+            <div ng-controller="EventViewController" id="event_container" class="container-fluid">
+                <h1 class="page-header">Calendar Application Event</h1>
+                <div class="row">
+                    <div class="col-sm-4 col-md-2 sidebar">
+                        <button id="showCalendar">&lt;&lt; Calendar</button>       
+                    </div>
 
-        </pre>
-        -->
+                    <div class="col-sm-8 col-md-10 main">
+                        <table id="event_table" style="background-color: white; color: black">
+                            <tr><th>Id</th><td id="event_ph_id">&nbsp;</td></tr>
+                            <tr><th>Title</th><td id="event_ph_title">&nbsp;</td></tr>
+                            <tr><th>Category</th><td id="event_ph_category">&nbsp;</td></tr>
+                            <tr><th>Calendar</th><td id="event_ph_calendar">&nbsp;</td></tr>
+                            <tr><th>Start</th><td  id="event_ph_start">&nbsp;</td></tr>
+                            <tr><th>End</th><td id="event_ph_end">&nbsp;</td></tr>
+
+                        </table>
+
+                    </div>
+
+                </div>
+            </div>
+            </script>
+            
     </body>
 </html>

@@ -8,3 +8,6 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 **/cache/*
+/angular1/nbproject/private/
+/php5andjquery/calendar1/nbproject/private/
+/php5andjquery/calendar2/nbproject/private/

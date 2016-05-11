@@ -27,7 +27,7 @@ class CalendarAppController {
                 $returnObj = 
                         GetEventsAction::getInstance()
                         ->getEvents($_GET['start'], $_GET['end'], $_GET['tz'],$calIds, $catIds);
-                $this->doReturn(array("events" =>$returnObj));
+                $this->doReturn(array("events" =>$returnObj, "get" => $_GET));
                 break;
             case "getevent":
                 $returnObj = 

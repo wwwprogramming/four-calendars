@@ -38,7 +38,7 @@ var myApp = (function () {
 
     app.refreshCalender = function () {
         fullCalendar.fullCalendar('refetchEvents');
-    }
+    };
 
     app.setAllCalendars = function (calendars) {
         allCalendars = calendars;

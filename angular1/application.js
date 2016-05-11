@@ -1,153 +1,275 @@
-var calendarApp = angular.module('calendarApp', ['ui.calendar', 'ui.bootstrap']);
+var calendarApp = angular.module('calendarApp', ['ui.router','ui.calendar', 'ui.bootstrap']);
 
-calendarApp.controller('ApplicationController', function() {
+
+calendarApp.config(function($stateProvider) {
+  console.log("states...");
+    $stateProvider
+    .state('index', {
+        url: "¨",
+        
+    })
+    .state('calendar', {
+      url: "/calendar",
+      views: {
+          data:{},
+        "calendar": { 
+            templateProvider: function($templateCache){  
+                    // simplified, expecting that the cache is filled
+                // there should be some checking... and async $http loading if not found
+                return $templateCache.get('/calendar.html'); 
+            } 
+        }
+      }
+    })
+    .state('event', {
+      url: "/event/:id",
+      views: {
+          
+        "event": { 
+            templateProvider: function($templateCache){
+                return $templateCache.get('/event.html'); 
+            }
+        }
+        
+      }
+    });
+});
+
+calendarApp.factory('calendarService', function(appConfiguration, $http,$q) {
+   console.log("calendarService");
+    var serviceFactory = {};
+
+   var calendars = [];
+   var categories = [];
+   
+   var activeCalendars = [];
+   var activeCategories = [];
+   
+   
+   serviceFactory.allCalendars = function() { return calendars; };
+   serviceFactory.allCategories = function() { return categories; };
+   
+   
+   serviceFactory.events = function(start,end,tz, calendarIds, categoryIds, fn) {
+       
+       
+       $http({
+  method: 'GET',
+  url: appConfiguration.eventsPoint,
+  params: {"start": start.format("YYYY-MM-DD"), "end": end.format("YYYY-MM-DD"), "tz": tz, "catId[]": categoryIds, "calId[]": calendarIds}
+}).then(function successCallback(response) {
+    console.log(response);
+    // this callback will be called asynchronously
+    // when the response is available
+    
+    
+    fn(response.data.events);
+  }, function errorCallback(response) {
+  console.log("error?");
+  console.log(response);
+    // called asynchronously if an error occurs
+    // or server returns response with an error status.
+    fn([]);
+  });
+       
+       
+   };
+   
+   serviceFactory.init = function() {
+       var promise = $http.get(appConfiguration.initPoint)
+        .then(function(response) {
+            console.log("init this promise");
+            console.log(response);
+            calendars = response.data.calendars;
+            categories = response.data.categories;
+            return response.data;
+        }); 
+        return promise;
+   };
+      
+      return {
+          getAllCalendars: serviceFactory.allCalendars,
+          getAllCategories: serviceFactory.allCategories,
+          getEvents: serviceFactory.events,
+          init: serviceFactory.init
+      };
+    
+ });
+
+calendarApp.controller('ApplicationController', function($rootScope,$scope,$stateParams, $http, $state, appConfiguration, calendarService) {
+    console.log("ApplicationController");
     var calendar = this;
+    console.log(appConfiguration);
     
-    calendar.currentDate = moment();
-    calendar.allCalendars = [];
-    calendar.allCategories = [];
-    calendar.activeCalendars = [];
-    calendar.activeCategories = [];
-    calendar.url;
-    calendar.viewType = "month";
- 
-    calendar.setCalendars = function(allCalendars) {
-        calendar.allCalendars = allCalendars;
+    
+    
+    var calendarSearch = this;
+    
+    $scope.state = {};
+    $scope.state.dt = moment().toDate();
+    $scope.state.activeCalendars = [];
+    $scope.state.activeCategories = [];
+    // variable to hold true when calendar is in the middle of view change
+    $scope.state.changingView = false;
+    // other data not related to state, like all cals and cats
+    $scope.data = {};
+    
+    $scope.$watch("state.dt", function(newVal, oldVal) {
+       console.log("state.dt");
+       console.log(newVal,oldVal);
+    });
+    
+    $scope.datePickerChanged = function(newVal, oldVal) {
+        console.log("application...");
+        console.log($scope.state.dt);
+       console.log(newVal,oldVal); 
     };
     
-    calendar.setCategories = function(allCategories) {
-        calendar.allCategories = allCategories;
+    $scope.calendarViewRender = function(view, element) {
+        $scope.state.changingView = true;
+        console.log("calendarViewRender");
+        console.log(view.start, view.end);
+        $scope.state.dt = view.start;
     };
     
-    calendar.selectCategory = function (id) {
-        console.log("selectCategory(" + id + ")");
-        calendar.activeCategories.push(id);
+    $scope.eventAfterAllRender = function(view) {
+         console.log("eventAfterAllRender");
+         $scope.state.changingView = false;
+    },
+    
+    $scope.eventClick = function(event) {
+        console.log(event);
+        $state.go("event", {"id": 234});
+    },
+    
+    /****************
+     * 
+     * API
+     */    
+        
+
+    $scope.setSelectedCalendars = function (cals) {
+        console.log("app set cals");
+        console.log(cals);
+        $scope.state.activeCalendars = cals;
     };
 
-    calendar.unSelectCategory = function (id) {
-        console.log("unSelectCategory(" + id + ")");
-        calendar.activeCategories = _.filter(calendar.activeCategories, function (value, key) {
-            if (id === value) {
-                return false;
-            }
-            return true;
-        });  
+    $scope.setSelectedCategories = function (cats) {
+        console.log("app set cats");
+        console.log(cats);
+        
+        $scope.state.activeCategories = cats;
     };
-
-    calendar.selectCalendar = function (id) {
-        console.log("selectCalendar(" + id + ")");
-        calendar.activeCalendars.push(id);   
+    
+    $scope.getEvents = function(start, end, tz, fn) {
+        console.log("application getEvents()");
+        var calendarIds = _.map($scope.state.activeCalendars, function(item) {return item.id; });
+        var categoryIds = _.map($scope.state.activeCategories, function(item) {return item.id; });
+        
+        calendarService.getEvents(start, end,tz, calendarIds, categoryIds, fn);
+        
     };
-
-    calendar.unSelectCalendar = function (id) {
-        console.log("unSelectCalendar(" + id + ")");
-        calendar.activeCalendars = _.filter(calendar.activeCalendars, function (value, key) {
-            if (id === value) {
-                return false;
-            }
-            return true;
+    
+    
+    // INIT
+    calendarService.init().then(function(data) {
+        console.log("init calendarService complete");
+        console.log(data);
+        var calendars = calendarService.getAllCalendars();
+        var categories = calendarService.getAllCategories();
+        // add attributes required by ng
+        _.each(calendars, function(item) {
+            item.selected = false;
         });
-    };
- 
+        $scope.data.allCalendars = calendars;
+        _.each(categories, function(item) {
+            item.selected = false;
+        });
+        $scope.data.allCategories = categories;
+    });
+    
     
   });
   
   
-  calendarApp.controller('CalendarViewController', function() {
-    
-        calendarView = this;
+  calendarApp.controller('CalendarViewController', function($scope, calendarService) {
+    console.log("CalendarViewController");
+        var calendarView = this;
         
-        calendarView.getEvents = function (start, end, tz, fn) {
-        // add calendars and categories to url.
-        console.log("app.getEvents");
-        console.log(start, end, tz);
-        // calId, catId, date, start, end, tz
-        jQuery.get(url,
-                {"action": "getevents",
-                    "calId": activeCalendars,
-                    "catId": activeCategories,
-                    "start": start.format("YYYY-MM-DD"),
-                    "end": end.format("YYYY-MM-DD"),
-                    "tz": tz}, function (response) {
-            console.log(response);
-            fn(response.events);
-        });
-    };
-    
- 
-    
   });
  
-
-
-
-  calendarApp.controller('EventViewController', function() {
+  calendarApp.controller('CalendarSearchController', function($scope, $http, filterFilter, calendarService) {
+      console.log("CalendarSearchController...");  
+      
+      $scope.options = {
+        showWeeks: true
+      };
     
-        eventView = this;
+    // helper method to get selected calendars
+  $scope.selectedCalendars = function selectedCalendars() {
+    return filterFilter($scope.data.allCalendars, { selected: true });
+  };
+  
+      // helper method to get selected categories
+  $scope.selectedCategories = function selectedCategories() {
+    return filterFilter($scope.data.allCategories, { selected: true });
+  };
+
+  // watch calendars for changes
+  $scope.$watch('data.allCalendars|filter:{selected:true}', function (nv) {
+    if (nv) {
+      var selection = nv.map(function (cal) {
+        return cal;
+      });
+    $scope.setSelectedCalendars(selection);
+    console.log(selection);
+    }
+  }, true);
+  
+    // watch categories for changes
+  $scope.$watch('data.allCategories|filter:{selected:true}', function (nv) {
+    if (nv) {
+      var selection = nv.map(function (cal) {
+        return cal;
+      });
+    $scope.setSelectedCategories(selection);
+    console.log(selection);
+    }
+  }, true);
         
-        eventView.getEvent = function (id) {
-        // add calendars and categories to url.
-        
-        // calId, catId, date, start, end, tz
-        jQuery.get(url,
-                {"action": "getevents",
-                    "calId": activeCalendars,
-                    "catId": activeCategories,
-                    "start": start.format("YYYY-MM-DD"),
-                    "end": end.format("YYYY-MM-DD"),
-                    "tz": tz}, function (response) {
-            console.log(response);
-            fn(response.events);
-        });
-    };
+       
+  });
+
+
+  calendarApp.controller('EventViewController', function($rootScope,$scope,$stateParams ,$state) {
+    console.log('EventViewController');
+    console.log($stateParams);
+    console.log($state.params);
+    console.log($state);
+//    console.log(EventParams);
+    
+        var eventView = this;
+        //
+
       
   });
   
   
 
- calendarApp.controller('CalendarCtrl', function($scope,$compile,uiCalendarConfig) {
-    var date = new Date();
+ calendarApp.controller('CalendarCtrl', function($scope,$compile,uiCalendarConfig,calendarService) {
+    console.log("CalendarCtrl");
+     var date = new Date();
     var d = date.getDate();
     var m = date.getMonth();
     var y = date.getFullYear();
     
-    $scope.changeTo = 'Hungarian';
-    /* event source that pulls from google.com */
-    $scope.eventSource = {
-            url: "http://www.google.com/calendar/feeds/usa__en%40holiday.calendar.google.com/public/basic",
-            className: 'gcal-event',           // an option!
-            currentTimezone: 'America/Chicago' // an option!
-    };
-    /* event source that contains custom events on the scope */
-    $scope.events = [
-      {title: 'All Day Event',start: new Date(y, m, 1)},
-      {title: 'Long Event',start: new Date(y, m, d - 5),end: new Date(y, m, d - 2)},
-      {id: 999,title: 'Repeating Event',start: new Date(y, m, d - 3, 16, 0),allDay: false},
-      {id: 999,title: 'Repeating Event',start: new Date(y, m, d + 4, 16, 0),allDay: false},
-      {title: 'Birthday Party',start: new Date(y, m, d + 1, 19, 0),end: new Date(y, m, d + 1, 22, 30),allDay: false},
-      {title: 'Click for Google',start: new Date(y, m, 28),end: new Date(y, m, 29),url: 'http://google.com/'}
-    ];
-    /* event source that calls a function on every view switch */
-    $scope.eventsF = function (start, end, timezone, callback) {
-      var s = new Date(start).getTime() / 1000;
-      var e = new Date(end).getTime() / 1000;
-      var m = new Date(start).getMonth();
-      var events = [{title: 'Feed Me ' + m,start: s + (50000),end: s + (100000),allDay: false, className: ['customFeed']}];
-      callback(events);
-    };
 
-    $scope.calEventsExt = {
-       color: '#f00',
-       textColor: 'yellow',
-       events: [ 
-          {type:'party',title: 'Lunch',start: new Date(y, m, d, 12, 0),end: new Date(y, m, d, 14, 0),allDay: false},
-          {type:'party',title: 'Lunch 2',start: new Date(y, m, d, 12, 0),end: new Date(y, m, d, 14, 0),allDay: false},
-          {type:'party',title: 'Click for Google',start: new Date(y, m, 28),end: new Date(y, m, 29),url: 'http://google.com/'}
-        ]
-    };
+
     /* alert on eventClick */
-    $scope.alertOnEventClick = function( date, jsEvent, view){
+    $scope.alertOnEventClick = function( event, jsEvent, view){
+        console.log(event, jsEvent, view);
         $scope.alertMessage = (date.title + ' was clicked ');
+        $scope.eventClick(event);
     };
     /* alert on Drop */
      $scope.alertOnDrop = function(event, delta, revertFunc, jsEvent, ui, view){
@@ -187,6 +309,37 @@ calendarApp.controller('ApplicationController', function() {
     $scope.changeView = function(view,calendar) {
       uiCalendarConfig.calendars[calendar].fullCalendar('changeView',view);
     };
+    
+    $scope.$watch('state.dt' ,function(newDate) {
+        console.log("calendarctrl ... go to new date");
+        // date changed from the picker or because view  changed...
+        if (!$scope.state.changingView) {
+            if(uiCalendarConfig.calendars['myCalendar1']){
+                uiCalendarConfig.calendars['myCalendar1'].fullCalendar('gotoDate', newDate); 
+            }
+        }
+    });
+    
+    $scope.$watch('state.activeCalendars' ,function(newCalendars) {
+        console.log("calendarctrl ... go to new calendars");
+        // calendars changed so force calendar to refetch events
+        if (!$scope.state.changingView) {
+            if(uiCalendarConfig.calendars['myCalendar1']){
+                uiCalendarConfig.calendars['myCalendar1'].fullCalendar('refetchEvents');
+            }
+        }
+    });
+    
+    $scope.$watch('state.activeCategories' ,function(newCategories) {
+        console.log("calendarctrl ... go to new categories");
+        // categories changed so force calendar to refetch events
+        if (!$scope.state.changingView) {
+            if(uiCalendarConfig.calendars['myCalendar1']){
+                uiCalendarConfig.calendars['myCalendar1'].fullCalendar('refetchEvents');
+            }
+        }
+    });
+    
     /* Change View */
     $scope.renderCalender = function(calendar) {
       if(uiCalendarConfig.calendars[calendar]){
@@ -195,6 +348,8 @@ calendarApp.controller('ApplicationController', function() {
     };
      /* Render Tooltip */
     $scope.eventRender = function( event, element, view ) { 
+        //console.log("eventRender");
+        //console.log(event);
         element.attr({'tooltip': event.title,
                      'tooltip-append-to-body': true});
         $compile(element)($scope);
@@ -212,13 +367,14 @@ calendarApp.controller('ApplicationController', function() {
         eventClick: $scope.alertOnEventClick,
         eventDrop: $scope.alertOnDrop,
         eventResize: $scope.alertOnResize,
-        eventRender: $scope.eventRender
+        eventRender: $scope.eventRender,
+        viewRender: $scope.calendarViewRender,
+        eventAfterAllRender: $scope.eventAfterAllRender
       }
     };
 
 /* event sources array*/
-    $scope.eventSources = [$scope.events, $scope.eventSource, $scope.eventsF];
-    $scope.eventSources2 = [$scope.calEventsExt, $scope.eventsF, $scope.events];
+    $scope.eventSources = [$scope.getEvents];
     
-}
+});
 
