@@ -66,17 +66,8 @@ and open the template in the editor.
         </div>
 
         <div ui-view='index'>
-            <pre>Master view</pre>
-            <a ui-sref='index({id: 1, color: 123})'>Route 1</a>
-            <a ui-sref='event({id: 1, color: 123})'>Route 1</a>
-            <a ui-sref="calendar({id: 1, color: 123})">Route 1</a>
-            <div ui-view="calendar">
-
-            </div>
-        
-            <div ui-view="event">
-
-            </div>
+            <div ui-view="calendar"></div>
+            <div ui-view="event"></div>
         </div><!-- viewMaster -->
         
         <script type="text/ng-template" id="/calendar.html">
@@ -88,15 +79,13 @@ and open the template in the editor.
                     <?php
                     include dirname(__FILE__) . DIRECTORY_SEPARATOR . "search.php";
                     ?>
-
                 </div>
+        
                 <div class="col-sm-8 col-md-8 main" ng-controller="CalendarCtrl" >
                     <!--  calendar -->
                     <?php 
                     include dirname(__FILE__) . DIRECTORY_SEPARATOR . "calendar.php"; 
                     ?>
-
-
                 </div>
             </div>
             </div>
@@ -107,18 +96,17 @@ and open the template in the editor.
                 <h1 class="page-header">Calendar Application Event</h1>
                 <div class="row">
                     <div class="col-sm-4 col-md-2 sidebar">
-                        <button id="showCalendar">&lt;&lt; Calendar</button>       
+                        <button id="showCalendar" ng-click="toCalendar()">&lt;&lt; Calendar</button>       
                     </div>
 
                     <div class="col-sm-8 col-md-10 main">
                         <table id="event_table" style="background-color: white; color: black">
-                            <tr><th>Id</th><td id="event_ph_id">&nbsp;</td></tr>
-                            <tr><th>Title</th><td id="event_ph_title">&nbsp;</td></tr>
-                            <tr><th>Category</th><td id="event_ph_category">&nbsp;</td></tr>
-                            <tr><th>Calendar</th><td id="event_ph_calendar">&nbsp;</td></tr>
-                            <tr><th>Start</th><td  id="event_ph_start">&nbsp;</td></tr>
-                            <tr><th>End</th><td id="event_ph_end">&nbsp;</td></tr>
-
+                            <tr><th>Id</th><td id="event_ph_id">{{event.id}}</td></tr>
+                            <tr><th>Title</th><td id="event_ph_title">{{event.title}}</td></tr>
+                            <tr><th>Category</th><td id="event_ph_category">{{event.category}}</td></tr>
+                            <tr><th>Calendar</th><td id="event_ph_calendar">{{event.calendar}}</td></tr>
+                            <tr><th>Start</th><td  id="event_ph_start">{{event.start}}</td></tr>
+                            <tr><th>End</th><td id="event_ph_end">{{event.end}}</td></tr>
                         </table>
 
                     </div>

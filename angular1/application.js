@@ -5,13 +5,20 @@ calendarApp.config(function($stateProvider) {
   console.log("states...");
     $stateProvider
     .state('index', {
-        url: "¨",
-        
+        url: "",
+       views: {
+        "calendar": { 
+            templateProvider: function($templateCache){  
+                    // simplified, expecting that the cache is filled
+                // there should be some checking... and async $http loading if not found
+                return $templateCache.get('/calendar.html'); 
+            } 
+        }
+      } 
     })
     .state('calendar', {
       url: "/calendar",
       views: {
-          data:{},
         "calendar": { 
             templateProvider: function($templateCache){  
                     // simplified, expecting that the cache is filled
@@ -49,28 +56,54 @@ calendarApp.factory('calendarService', function(appConfiguration, $http,$q) {
    serviceFactory.allCalendars = function() { return calendars; };
    serviceFactory.allCategories = function() { return categories; };
    
+   serviceFactory.category = function(id) { return _.find(categories, function(item) {
+      return item.id === id;     
+   });
+   };
+   
+   serviceFactory.calendar = function(id) { return _.find(calendars, function(item) {
+      return item.id === id;     
+   });
+   };
+   
+   serviceFactory.event = function(id, start, fn) {
+                   $http({
+       method: 'GET',
+       url: appConfiguration.eventPoint,
+       params: {"id": id, "start": start}
+     }).then(function successCallback(response) {
+         console.log(response);
+         fn(response.data.event);
+       }, function errorCallback(response) {
+            console.log("error?");
+            console.log(response);
+            fn({});
+       });
+   };
+   
+   
    
    serviceFactory.events = function(start,end,tz, calendarIds, categoryIds, fn) {
        
        
-       $http({
-  method: 'GET',
-  url: appConfiguration.eventsPoint,
-  params: {"start": start.format("YYYY-MM-DD"), "end": end.format("YYYY-MM-DD"), "tz": tz, "catId[]": categoryIds, "calId[]": calendarIds}
-}).then(function successCallback(response) {
-    console.log(response);
-    // this callback will be called asynchronously
-    // when the response is available
-    
-    
-    fn(response.data.events);
-  }, function errorCallback(response) {
-  console.log("error?");
-  console.log(response);
-    // called asynchronously if an error occurs
-    // or server returns response with an error status.
-    fn([]);
-  });
+            $http({
+       method: 'GET',
+       url: appConfiguration.eventsPoint,
+       params: {"start": start.format("YYYY-MM-DD"), "end": end.format("YYYY-MM-DD"), "tz": tz, "catId[]": categoryIds, "calId[]": calendarIds}
+     }).then(function successCallback(response) {
+         console.log(response);
+         // this callback will be called asynchronously
+         // when the response is available
+
+
+         fn(response.data.events);
+       }, function errorCallback(response) {
+       console.log("error?");
+       console.log(response);
+         // called asynchronously if an error occurs
+         // or server returns response with an error status.
+         fn([]);
+       });
        
        
    };
@@ -91,6 +124,9 @@ calendarApp.factory('calendarService', function(appConfiguration, $http,$q) {
           getAllCalendars: serviceFactory.allCalendars,
           getAllCategories: serviceFactory.allCategories,
           getEvents: serviceFactory.events,
+          getEvent: serviceFactory.event,
+          getCalendar: serviceFactory.calendar,
+          getCategory: serviceFactory.category,
           init: serviceFactory.init
       };
     
@@ -139,7 +175,8 @@ calendarApp.controller('ApplicationController', function($rootScope,$scope,$stat
     
     $scope.eventClick = function(event) {
         console.log(event);
-        $state.go("event", {"id": 234});
+        $scope.state.event = event;
+        $state.go("event", {"id": event.id});
     },
     
     /****************
@@ -241,15 +278,26 @@ calendarApp.controller('ApplicationController', function($rootScope,$scope,$stat
   });
 
 
-  calendarApp.controller('EventViewController', function($rootScope,$scope,$stateParams ,$state) {
+  calendarApp.controller('EventViewController', function($scope,$state,$stateParams,calendarService) {
     console.log('EventViewController');
     console.log($stateParams);
-    console.log($state.params);
-    console.log($state);
-//    console.log(EventParams);
+    var eventView = this;
+    $scope.event = {};
     
-        var eventView = this;
-        //
+    $scope.toCalendar = function() {
+        $state.go('calendar');
+    };
+    
+    calendarService.getEvent($stateParams.id, $scope.state.event.start.format("YYYY-MM-DD"), function(event) {
+        console.log(event);
+        $scope.event.id = event.id;
+        $scope.event.title = event.title;
+        $scope.event.calendar = calendarService.getCalendar(event.calendar).name;
+        $scope.event.category = calendarService.getCategory(event.category).name;
+        $scope.event.start = moment(event.start).format("YYYY-MM-DD HH:mm");
+        $scope.event.end = moment(event.end).format("YYYY-MM-DD HH:mm");
+    });  
+        
 
       
   });
@@ -359,10 +407,10 @@ calendarApp.controller('ApplicationController', function($rootScope,$scope,$stat
       calendar:{
         height: 450,
         editable: true,
-        header:{
-          left: 'title',
-          center: '',
-          right: 'today prev,next'
+        header: {
+            left: 'prev,next today',
+	    center: 'title',
+            right: 'month,agendaWeek,agendaDay'
         },
         eventClick: $scope.alertOnEventClick,
         eventDrop: $scope.alertOnDrop,
