@@ -63,6 +63,7 @@ and open the template in the editor.
 
         <div class="container-fluid">
             NAVI
+            <pre>{{state.dt}}</pre>
         </div>
 
         <div ui-view='index'>

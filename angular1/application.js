@@ -232,14 +232,19 @@ calendarApp.controller('ApplicationController', function($rootScope,$scope,$stat
   calendarApp.controller('CalendarViewController', function($scope, calendarService) {
     console.log("CalendarViewController");
         var calendarView = this;
+        console.log("dt...");
+        console.log($scope.state.dt);
         
   });
  
   calendarApp.controller('CalendarSearchController', function($scope, $http, filterFilter, calendarService) {
       console.log("CalendarSearchController...");  
+      console.log("dt...");
+      console.log($scope.state.dt);
       
       $scope.options = {
-        showWeeks: true
+        showWeeks: true,
+        initDate: $scope.state.dt
       };
     
     // helper method to get selected calendars
@@ -306,17 +311,11 @@ calendarApp.controller('ApplicationController', function($rootScope,$scope,$stat
 
  calendarApp.controller('CalendarCtrl', function($scope,$compile,uiCalendarConfig,calendarService) {
     console.log("CalendarCtrl");
-     var date = new Date();
-    var d = date.getDate();
-    var m = date.getMonth();
-    var y = date.getFullYear();
-    
-
 
     /* alert on eventClick */
     $scope.alertOnEventClick = function( event, jsEvent, view){
         console.log(event, jsEvent, view);
-        $scope.alertMessage = (date.title + ' was clicked ');
+        $scope.alertMessage = (event.title + ' was clicked ');
         $scope.eventClick(event);
     };
     /* alert on Drop */
@@ -340,15 +339,7 @@ calendarApp.controller('ApplicationController', function($rootScope,$scope,$stat
         sources.push(source);
       }
     };
-    /* add custom event*/
-    $scope.addEvent = function() {
-      $scope.events.push({
-        title: 'Open Sesame',
-        start: new Date(y, m, 28),
-        end: new Date(y, m, 29),
-        className: ['openSesame']
-      });
-    };
+    
     /* remove event */
     $scope.remove = function(index) {
       $scope.events.splice(index,1);
@@ -360,6 +351,9 @@ calendarApp.controller('ApplicationController', function($rootScope,$scope,$stat
     
     $scope.$watch('state.dt' ,function(newDate) {
         console.log("calendarctrl ... go to new date");
+        console.log(newDate);
+        console.log($scope.state.dt);
+        
         // date changed from the picker or because view  changed...
         if (!$scope.state.changingView) {
             if(uiCalendarConfig.calendars['myCalendar1']){
@@ -412,6 +406,7 @@ calendarApp.controller('ApplicationController', function($rootScope,$scope,$stat
 	    center: 'title',
             right: 'month,agendaWeek,agendaDay'
         },
+        defaultDate: ($scope.state.dt ? $scope.state.dt : moment()),
         eventClick: $scope.alertOnEventClick,
         eventDrop: $scope.alertOnDrop,
         eventResize: $scope.alertOnResize,
