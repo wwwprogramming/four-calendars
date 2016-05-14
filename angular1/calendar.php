@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 
 define("DS", DIRECTORY_SEPARATOR);
 define("ROOT_PATH", dirname(__FILE__));
